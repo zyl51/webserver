@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
     ThreadPool<Http_Connect> * pool = nullptr;
     // 进行异常处理
     try {
-        pool = new ThreadPool<Http_Connect>();
+        pool = new ThreadPool<Http_Connect>(8, 10000);
     } catch(...) {
         return 1;
     }
@@ -85,18 +85,16 @@ int main(int argc, char * argv[]) {
     // 设置监听
     listen(listenfd, 5);
 
+    // 创建读写缓存区改变的事件数组，也就是存储epoll查询事件的
+    epoll_event events[MAX_EVENT_NUMBER];
+
     // 创建我们的代码epoll
     int epollfd = epoll_create(5);
     if (epollfd == -1) {
         perror("epoll_create failed");
         return -1;
     }
-
-    // 创建读写缓存区改变的事件数组，也就是存储epoll查询事件的
-    epoll_event events[MAX_EVENT_NUMBER];
-
     // 添加到epoll事件中
-    int epollfd = epoll_create(5);
     addfd(epollfd, listenfd, false);
     Http_Connect::m_epollfd = epollfd;
 

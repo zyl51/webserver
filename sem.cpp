@@ -12,7 +12,7 @@ Sem::Sem() {
 
 // 构造函数带初始值 num
 Sem::Sem(int num) {
-    if (sem_init(&m_sem, NULL, num) != 0) {
+    if (sem_init(&m_sem, 0, (unsigned int)num) != 0) {
         throw std::exception();
     }
 }

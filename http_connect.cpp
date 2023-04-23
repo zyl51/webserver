@@ -1,7 +1,7 @@
 #include "http_connect.h"
 
-static int m_epollfd = -1; // 所有socket的epoll文件描述符，指向红黑树
-static int m_uesr_count = 0 ; // 用户的数量，客户端的数量
+int Http_Connect::m_epollfd = -1; // 所有socket的epoll文件描述符，指向红黑树
+int Http_Connect::m_uesr_count = 0 ; // 用户的数量，客户端的数量
 
 
 // 设置文件描述符的非阻塞
@@ -36,7 +36,7 @@ void addfd(int epollfd, int fd, bool one_shot) {
 
     // 添加事件
     int ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event);
-    if (~ret) {
+    if (ret == -1) {
         perror("epoll_ctl failed");
         exit(-1);
     }
@@ -73,14 +73,35 @@ void Http_Connect::close_connect() {
 
 }
 
+
+
+void modifyfd(int epollfd, int fd, int event) {
+
+    epoll_event eventt;
+    eventt.data.fd;
+    eventt.events = event | EPOLLET | EPOLLONESHOT | EPOLLRDHUP;
+    epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &eventt);
+
+}
+
+
+
 bool Http_Connect::read() {
     // 一次性缓存区都读取
+    std::cout << "一次性读完\n";
 
     return true;
 }
 
 bool Http_Connect::write() {
     // 一次性写
+    std::cout << "一次性写完\n";
 
     return true;
+}
+
+void Http_Connect::process() {
+
+    std::cout << "解析请求，创建响应" << std::endl;
+
 }
