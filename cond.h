@@ -4,14 +4,12 @@
 #include <pthread.h>
 #include <time.h>
 
-
-class Cond {
+class Cond
+{
 
 private:
-
     // 条件变量
     pthread_cond_t m_cond;
-    
 
 public:
     Cond();
@@ -28,7 +26,6 @@ public:
 
     // 唤醒全部等待条件
     bool broadcast();
-
 };
 
 #endif

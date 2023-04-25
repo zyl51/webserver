@@ -3,7 +3,8 @@
 
 #include <pthread.h>
 
-class Locker {
+class Locker
+{
 private:
     // 互斥锁
     pthread_mutex_t m_mutex;
@@ -19,8 +20,7 @@ public:
     bool unlock();
 
     // 获取锁;
-    pthread_mutex_t * get();
-
+    pthread_mutex_t *get();
 };
 
 #endif
