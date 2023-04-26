@@ -7,6 +7,7 @@
 #include <sys/epoll.h>
 #include <errno.h>
 #include <unistd.h>
+#include "log.h"
 
 const int MAX_FD = 65535;           // 文件描述符的最大数量
 const int MAX_EVENT_NUMBER = 10000; // 监听的最大事件个数
@@ -46,6 +47,19 @@ int main(int argc, char *argv[])
     int port = atoi(argv[1]);
     // 增加信号量的捕捉
     addsig(SIGPIPE, SIG_IGN);
+
+    Log * log = nullptr;
+    try
+    {
+        log = Log::get_instance();
+    }
+    catch(...)
+    {
+        return 1;
+    }
+
+    log->init("./ServerLog", 2000, 800000, 800);
+
 
     // 创建线程池，任务类型时 Http_Connect
     ThreadPool<Http_Connect> *pool = nullptr;
@@ -136,7 +150,7 @@ int main(int argc, char *argv[])
                 // 判断服务器服务的用户是否已经爆满
                 if (Http_Connect::m_uesr_count >= MAX_FD)
                 {
-                    std::cout << "向客户端发送服务器正忙，请稍后重试\n";
+                    //std::cout << "向客户端发送服务器正忙，请稍后重试\n";
                     close(connfd); // 关闭通信的客户端文件描述符
                     continue;
                 }
