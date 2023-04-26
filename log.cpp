@@ -10,8 +10,10 @@ Log::~Log()
 {
     if (m_fp != nullptr)
     {
+        fflush(m_fp);
         fclose(m_fp);
     }
+    m_fp = nullptr;
 }
 
 
@@ -24,6 +26,7 @@ bool Log::init(const char * file_name, int log_buf_size,
     {
         // 设置flag，异步日志
         m_is_async = true;
+        // std::cout << m_is_async << std::endl;
         
         // 创建并设置队列的长度
         m_log_queue = new BlockQueue<std::string>(max_queue_size);
@@ -63,7 +66,7 @@ bool Log::init(const char * file_name, int log_buf_size,
         // 路径名
         strncpy(dir_name, file_name, p - file_name + 1);
         snprintf(full_file_name, 255, "%s%d_%02d_%02d_%s", 
-            dir_name, my_tm.tm_year, my_tm.tm_mon, my_tm.tm_mday, log_name);
+            dir_name, my_tm.tm_year + 1900, my_tm.tm_mon, my_tm.tm_mday, log_name);
 
     }
 
@@ -83,11 +86,14 @@ bool Log::init(const char * file_name, int log_buf_size,
 void * Log::async_write_log()
 {
     std::string single_log;
+    // std::cout << "--------" << single_log << std::endl;
     //从阻塞队列中取出一个日志string，写入文件
     while (m_log_queue->pop(single_log))
     {
         m_mutex.lock();
+        // std::cout << "--------" << single_log << std::endl;
         fputs(single_log.c_str(), m_fp);
+        fflush(m_fp);
         m_mutex.unlock();
     }
 }
@@ -179,13 +185,16 @@ void Log::write_log(int level, const char *format, ...)
     m_buf[n + m] = '\n';
     m_buf[n + m + 1] = '\0';
 
-    std::string log_str = m_buf;
+    std::string log_str = std::string(m_buf);
 
     m_mutex.unlock();
-
+    // std::cout << "m_buf-------------" << m_buf << std::endl;
+    // std::cout << "log_str-------------" << log_str << std::endl;
     // 如果是异步日志，则放入队列中
+    // std::cout << "----------" << m_log_queue->full() << std::endl;
     if (m_is_async && !m_log_queue->full())
     {
+        // std::cout << "--------" << std::endl;
         m_log_queue->push(log_str);
     }
     else 

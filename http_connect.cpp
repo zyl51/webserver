@@ -1,5 +1,6 @@
 #include "http_connect.h"
 
+
 // 定义HTTP响应的一些状态信息
 const char *ok_200_title = "OK";
 const char *error_400_title = "Bad Request";
@@ -13,6 +14,7 @@ const char *error_500_form = "There was an unusual problem serving the requested
 
 // 网站的根目录
 const char *doc_root = "/home/nowcoder/webserver/resources";
+extern Log * log;
 
 // 设置文件描述符的非阻塞
 void setnonblocking(int fd)
@@ -68,7 +70,6 @@ void removefd(int epollfd, int fd)
 
 void modifyfd(int epollfd, int fd, int event)
 {
-
     epoll_event eventt;
     eventt.data.fd = fd;
     eventt.events = event | EPOLLONESHOT | EPOLLRDHUP;
@@ -223,6 +224,8 @@ Http_Connect::LINE_STATE Http_Connect::parse_line()
 // 解析http请求行，获取请求方法，目标URL， HTTP版本
 Http_Connect::HTTP_CODE Http_Connect::parse_request_line(char *text)
 {
+    log->write_log(0, "%s", text);
+    // std::cout << "----" << log << std::endl;
     // GET /index.html HTTP/1.1
     m_url = strpbrk(text, " \t");
     if (!m_url)

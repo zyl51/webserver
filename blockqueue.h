@@ -38,6 +38,8 @@ public:
 template<class T>
 BlockQueue<T>::BlockQueue(int max_size)
 {
+    m_max_size = max_size;
+    m_size = 0;
     // 初始化锁
     if (pthread_mutex_init(&m_mutex, nullptr)) { throw std::exception(); }
     if (pthread_cond_init(&m_cond, nullptr)) { throw std::exception(); }
@@ -110,7 +112,7 @@ bool BlockQueue<T>::pop(T& item, int seconds)
 
     pthread_mutex_lock(&m_mutex);
 
-    while (m_size <= 0)
+    if (m_size <= 0)
     {
         // 如果为满足，return false
         if (pthread_cond_timedwait(&m_cond, &m_mutex, &t) != 0)
@@ -136,6 +138,7 @@ bool BlockQueue<T>::pop(T& item, int seconds)
 template<class T>
 bool BlockQueue<T>::full()
 {
+    // std::cout << m_size << " " << m_max_size << std::endl;
     return m_size >= m_max_size;
 }
 

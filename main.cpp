@@ -19,6 +19,8 @@ extern void removefd(int epollfd, int fd);
 // 修改文件描述符
 extern void modifyfd(int epollfd, int fd, int event);
 
+Log * log = nullptr;
+
 // 增加信号处理函数
 void addsig(int sig, void(handler)(int))
 {
@@ -48,7 +50,6 @@ int main(int argc, char *argv[])
     // 增加信号量的捕捉
     addsig(SIGPIPE, SIG_IGN);
 
-    Log * log = nullptr;
     try
     {
         log = Log::get_instance();
@@ -59,6 +60,7 @@ int main(int argc, char *argv[])
     }
 
     log->init("./ServerLog", 2000, 800000, 800);
+    // std::cout << "----" << log << std::endl;
 
 
     // 创建线程池，任务类型时 Http_Connect

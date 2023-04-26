@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+#include "log.h"
 
 class Http_Connect
 {
